@@ -1,71 +1,111 @@
-TryHackMe - Attacktive Directory Writeup
-
-Medium Blog:
-https://medium.com/@tusharmumbre/tryhackme-active-directory-walkthrough-full-domain-compromise-e02bb6217008
+TryHackMe – Attacktive Directory  
+Active Directory Domain Compromise Writeup  
 
 
-Overview
-
-This repository contains my complete walkthrough and analysis of the "Attacktive Directory" room on TryHackMe. 
-
-The objective of this lab was to perform a full Active Directory domain compromise starting without any credentials and ending with Administrator-level access.
-
-Target Details:
-- IP Address: 10.49.166.19
-- Domain: spookysec.local
-- Operating System: Windows Server 2019
+Medium Blog  
+https://medium.com/@tusharmumbre/tryhackme-active-directory-walkthrough-full-domain-compromise-e02bb6217008  
 
 
-Attack Summary
+1. Introduction  
 
-The attack followed a structured penetration testing approach:
+This repository presents a detailed penetration testing walkthrough of the “Attacktive Directory” lab from TryHackMe.  
 
-1. Reconnaissance
-Performed an Nmap scan to identify open ports and services. This confirmed that the target was a Domain Controller.
-
-2. Enumeration
-Used tools like enum4linux and Kerbrute to gather domain information and identify valid usernames.
-
-3. Exploitation
-Performed ASREPRoasting on a vulnerable account (svc-admin) to obtain a Kerberos hash, which was then cracked using Hashcat.
-
-4. Post-Exploitation
-Used the cracked credentials to access SMB shares and discovered backup credentials stored in a file.
-
-5. Privilege Escalation
-Executed a DCSync attack using the backup account to dump all domain password hashes.
-
-6. Final Access
-Used Pass-the-Hash technique to gain Administrator access to the system.
+The objective of this exercise was to simulate a real-world internal network attack against an Active Directory environment and achieve full domain compromise starting without any initial credentials.  
 
 
-Tools Used
+2. Target Information  
 
-- Nmap
-- Enum4linux
-- Kerbrute
-- Impacket
-- Hashcat
-- SMBClient
-- Evil-WinRM
+Target IP Address: 10.49.166.19  
+Domain Name: spookysec.local  
+Operating System: Windows Server 2019  
+Environment: Active Directory Domain Controller  
 
 
-Key Learnings
+3. Methodology  
 
-This lab demonstrated how small misconfigurations in Active Directory can lead to full domain compromise. 
+The assessment was conducted following a structured penetration testing approach consisting of the following phases:  
 
-Some important lessons:
-- Weak passwords can be cracked very quickly
-- Kerberos misconfigurations (like disabled pre-authentication) are dangerous
-- Sensitive credentials should never be stored in shared folders
-- DCSync attacks can expose the entire domain
-
-
-Full Report
-
-The complete detailed report is available in this repository as a document file. It includes all commands, outputs, and step-by-step explanations.
+- Reconnaissance  
+- Enumeration  
+- Exploitation  
+- Post-Exploitation  
+- Privilege Escalation  
 
 
-Purpose
+4. Attack Overview  
 
-This project is part of my cybersecurity learning journey and is intended to demonstrate my understanding of Active Directory attacks and penetration testing methodology.
+The compromise was achieved through a sequence of misconfigurations and weak security controls within the Active Directory environment.  
+
+The attack chain followed:  
+
+ASREPRoasting → Password Cracking → SMB Enumeration → Credential Discovery → DCSync Attack → Pass-the-Hash  
+
+
+5. Detailed Execution  
+
+5.1 Reconnaissance  
+An Nmap scan was performed to identify open ports and services. The presence of Kerberos, LDAP, and SMB confirmed that the target system was functioning as a Domain Controller.  
+
+5.2 Enumeration  
+SMB enumeration and Kerberos-based user enumeration were conducted using enum4linux and Kerbrute. This resulted in the identification of multiple valid domain users, including a service account.  
+
+5.3 Exploitation  
+The service account (svc-admin) was found vulnerable to ASREPRoasting due to disabled pre-authentication. A Kerberos hash was extracted and successfully cracked using Hashcat.  
+
+5.4 Post-Exploitation  
+Using the obtained credentials, SMB shares were accessed. A backup share contained encoded credentials, which were decoded to reveal valid domain credentials.  
+
+5.5 Privilege Escalation  
+The backup account had replication privileges, enabling a DCSync attack. This allowed extraction of NTLM password hashes for all domain users.  
+
+5.6 Domain Compromise  
+Using the Administrator hash, Pass-the-Hash authentication was performed via Evil-WinRM, resulting in full Domain Admin access.  
+
+
+6. Tools Utilized  
+
+- Nmap  
+- Enum4linux  
+- Kerbrute  
+- Impacket Toolkit  
+- Hashcat  
+- SMBClient  
+- Evil-WinRM  
+
+
+7. Key Findings  
+
+- Kerberos pre-authentication was disabled for a service account  
+- Weak password policy enabled instant hash cracking  
+- Sensitive credentials were stored in an accessible SMB share  
+- Excessive privileges were assigned to the backup account  
+
+
+8. Security Recommendations  
+
+- Enforce strong password policies across all accounts  
+- Enable Kerberos pre-authentication for all users  
+- Restrict and audit SMB share access  
+- Limit replication privileges strictly to Domain Controllers  
+- Monitor for abnormal Kerberos and replication activity  
+
+
+9. Conclusion  
+
+This lab demonstrates how multiple small misconfigurations in an Active Directory environment can be chained together to achieve full domain compromise.  
+
+It highlights the importance of secure configurations, proper privilege management, and continuous monitoring in enterprise environments.  
+
+
+10. Detailed Report  
+
+The complete penetration testing report, including all commands, outputs, and step-by-step execution, is available in this repository:
+
+- Attacktive_Directory_Writeup.docx  
+
+This document provides a comprehensive technical breakdown of the attack methodology and findings.  
+
+
+11. Purpose  
+
+This project is part of my cybersecurity learning journey and is intended to demonstrate practical knowledge of Active Directory attacks, penetration testing methodology, and post-exploitation techniques.  
